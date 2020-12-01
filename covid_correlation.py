@@ -56,28 +56,27 @@ for i in state_order:
 size_list = []
 actual_size = []
 color_list = []
-for i in deathsByState:      # size
+for i in deathsByState:      # color
     # print(deathsByState[i][6])
-    size_list.append(float(deathsByState[i][6])/100)
+    size_list.append(float(deathsByState[i][6]))
     actual_size.append(deathsByState[i][6])
 
-for i in testsByState:      # color
-    color_list.append(int(testsByState[i][6]))
+for i in testsByState:      # size
+    color_list.append(float(testsByState[i][6])/25000)
+
+print(color_list)
+print(size_list)
 
 p = figure(title="COVID-19 Number of Deaths vs Testing: September", plot_width=1200, plot_height=800)
 p.patches(state_xs, state_ys, line_color="#000000", line_width=2, fill_color="#ffffff")
 source = ColumnDataSource(dict(x=x, y=y, size_list=size_list, color_list=color_list, actual_size=actual_size))
-mapper = linear_cmap(field_name='color_list', palette=Spectral11, low=min(color_list), high=max(color_list))
-renderer = p.circle(source=source, x='x', y='y', size='size_list', fill_color=mapper)
-hover_tool = HoverTool(tooltips=[
-    ('deaths', '@actual_size')
-], renderers=[renderer])
-p.add_tools(hover_tool)
-color_bar = ColorBar(title='Testing', color_mapper=mapper['transform'], width=10)
+mapper = linear_cmap(field_name='size_list', palette=Spectral11, low=min(size_list), high=max(size_list))
+renderer = p.circle(source=source, x='x', y='y', size='color_list', fill_color=mapper)
+color_bar = ColorBar(title='Number of Deaths', color_mapper=mapper['transform'], width=10)
 relation = {3: 0, 4: 1, 5: 2, 6: 3, 7: 4, 8: 5, 9: 6, 10: 7}
 months = {3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July', 8: 'August', 9: 'September', 10: 'October'}
 event_legend1 = Legend(items=[LegendItem(label='500', renderers=[renderer])],
-                       location=(27, 125), label_height=3, label_standoff=10, title="Number of Deaths")
+                       location=(27, 125), label_height=3, label_standoff=10, title="Number of Tests")
 event_legend2 = Legend(items=[LegendItem(label='1500', renderers=[renderer])],
                        location=(21, 108), label_standoff=5)
 event_legend3 = Legend(items=[LegendItem(label='3000', renderers=[renderer])],
@@ -86,8 +85,6 @@ event_legend4 = Legend(items=[LegendItem(label='8000', renderers=[renderer])],
                        location=(5, 50), label_standoff=-5)
 event_legend5 = Legend(items=[LegendItem(label='150000', renderers=[renderer])],
                        location=(-1, 15), label_standoff=-10)
-#event_legend6 = Legend(items=[LegendItem(label='R6', renderers=[renderer])],
-#                       location=(-4, 0), label_standoff=-15)
 event_legend_list = [event_legend1, event_legend2, event_legend3, event_legend4, event_legend5]
 for legend in event_legend_list:
     p.add_layout(legend)
@@ -111,21 +108,18 @@ def update_plot(attr, old, new):
     global hover_tool
     test = []
     test2 = []
-    test3 = []
     for k in deathsByState:
-        test.append(float(deathsByState[k][relation[month]])/100)     # normalized
-        test3.append(deathsByState[k][relation[month]])
+        test.append(float(deathsByState[k][relation[month]]))     # normalized
     for l in testsByState:
-        test2.append(testsByState[l][relation[month]])
+        test2.append(float(testsByState[l][relation[month]])/25000)
     p.title.text = "COVID-19 Number of Deaths vs Testing: " + str(months[month])
     source.data['size_list'] = test
     source.data['color_list'] = test2
-    color_list = test2
-    mapper = test2
-    actual_size = test3
-    hover_tool = HoverTool(tooltips = [
-        ('death', '@size_list')
-    ])
+    print(test)
+    print(test2)
+    print(' ')
+    color_list = test
+    mapper = test
 
 
 slider = Slider(title='Month:', start=3, end=10, step=1, value=9)
