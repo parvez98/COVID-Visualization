@@ -124,8 +124,6 @@ def bkapp(doc):
                         location=(-2, 42), label_standoff=0)
     event_legend5 = Legend(items=[LegendItem(label='150000', renderers=[renderer])],
                         location=(-14, -10), label_standoff=-5)
-    # event_legend6 = Legend(items=[LegendItem(label="fff", renderers=[renderer])],
-    #                       location=(-20, -15), label_standoff=-10)
     event_legend_list = [event_legend2,
                         event_legend3, event_legend4, event_legend5]
     for legend in event_legend_list:
@@ -156,20 +154,16 @@ def bkapp(doc):
     p1.xgrid.grid_line_color = None
     p1.y_range.start = 0
 
-    p2 = figure(x_range=ranges, title="Mask Usage in Autauga County, AL", plot_height=250,
+    p2 = figure(x_range=ranges, title="Mask Usage in __, AL", plot_height=250,
                 toolbar_location=None, tools="")
 
-    p2.vbar(x=ranges, top=x[0], width=0.9)
+    p2.vbar(x=ranges, top=[0,0,0,0,0], width=0.9)
 
     p2.xgrid.grid_line_color = None
     p2.y_range.start = 0
     
     def update_plot(attr, old, new):
         month = int(slider.value)
-        #global color_list
-        #global mapper
-        #global p
-        #global actual_size
         test = []
         test2 = []
         for k in deathsByState:
@@ -213,23 +207,27 @@ def bkapp(doc):
             print(counter)
             p1.vbar(x=ranges, top=counter, width=0.9)
             p1.title.text = "Mask Usage in %s" %(state_selected)
-        if(len(x) > 0):
+            p3 = figure(x_range=ranges, title="Mask Usage in __, %s" %(state_selected), plot_height=250,
+                toolbar_location=None, tools="")
+            p3.vbar(x=ranges, top=[0,0,0,0,0], width=0.9)
+            p3.xgrid.grid_line_color = None
+            p3.y_range.start = 0
+            layout.children[2] = p3
+        if(select_county.value == new):
             x[0] = np.round(x[0], 2)
             print(x[0])
-            p2.y_range.start = min(x[0])
-            p2.y_range.end = max(x[0])
-            p2.vbar(x=ranges, top=x[0], width=0.9)
-            p2.title.text = "Mask Usage in %s, %s" %(county_selected, state_selected)
-        else: 
-            arr = [0,0,0,0,0]
-            p2.vbar(x=ranges, top=arr, width=0.9)
-            p2.title.text = "Mask Usage in __, %s" %(state_selected)
+            p3 = figure(x_range=ranges, title="Mask Usage in %s, %s" %(county_selected, state_selected), plot_height=250,
+                toolbar_location=None, tools="")
+            p3.vbar(x=ranges, top=x[0], width=0.9)
+            p3.xgrid.grid_line_color = None
+            p3.y_range.start = 0
+            layout.children[2] = p3
 
     slider = Slider(title='Month:', start=3, end=11, step=1, value=9)
     slider.on_change('value', update_plot)
     select_state.on_change('value', update_layout)
     select_county.on_change('value', update_layout)
-    layout = Column(row(select_state, Spacer(width = 300, height = 1, sizing_mode='fixed'), select_county), row(p1, p2), Spacer(width=10, height=100, sizing_mode='fixed'), column(p, slider))
+    layout = Column(row(select_state, Spacer(width = 300, height = 1, sizing_mode='fixed'), select_county), p1, p2, Spacer(width=10, height=40, sizing_mode='fixed'), column(p, slider))
     p.add_layout(color_bar, 'right')
     #show(layout)
     doc.add_root(layout)
