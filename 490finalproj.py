@@ -11,7 +11,7 @@ from bokeh.palettes import Spectral11, Spectral3, Viridis256
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider, DateRangeSlider, ColorBar, FixedTicker, Legend, LegendItem, HoverTool
 from bokeh.io import curdoc, output_file, show
-from bokeh.models import Select, Column
+from bokeh.models import Select, Column, Spacer
 from bokeh.client import push_session, pull_session
 from bokeh.server.server import Server
 import pandas as pd
@@ -42,7 +42,6 @@ for x in df['AL']:
 def bkapp(doc):
     col_list = ["date", "state", "deathIncrease", "totalTestResultsIncrease"]
     og_df = pd.read_csv('all-states-history.csv', usecols=col_list, sep=",")
-
 
     del_states = ["AK", "HI", "PR"]
     state_coord = pd.read_csv('states.csv')
@@ -149,7 +148,7 @@ def bkapp(doc):
     counts = counts.drop(columns=['countyfp', 'name','state'])
     x = counts.values.tolist()
 
-    p1 = figure(x_range=ranges, plot_height=250, title="Mask Usage in AL",
+    p1 = figure(x_range=ranges, title="Mask Usage in AL",plot_height=250,
                 toolbar_location=None, tools="")
 
     p1.vbar(x=ranges, top=counter, width=0.9)
@@ -157,7 +156,7 @@ def bkapp(doc):
     p1.xgrid.grid_line_color = None
     p1.y_range.start = 0
 
-    p2 = figure(x_range=ranges, plot_height=250, title="Mask Usage in Autauga County, AL",
+    p2 = figure(x_range=ranges, title="Mask Usage in Autauga County, AL", plot_height=250,
                 toolbar_location=None, tools="")
 
     p2.vbar(x=ranges, top=x[0], width=0.9)
@@ -194,11 +193,10 @@ def bkapp(doc):
         df5[state_selected] = result['name'].loc[result['state'] == state_selected]
         select_county.options = list(df5[state_selected])
         county_selected = select_county.value
-
+        print(county_selected)
         counts = result.loc[(result['state'] == state_selected) & (result['name'] == county_selected)]
         counts = counts.drop(columns=['countyfp', 'name','state'])
         x = counts.values.tolist()
-
         for county in df5[state_selected]:
             curr_state = result.loc[(result['state'] == state_selected) & (result['name'] == county)]
             never = curr_state.drop(columns=['countyfp', 'name','state', 'RARELY', 'SOMETIMES', 'FREQUENTLY', 'ALWAYS'])
@@ -211,18 +209,27 @@ def bkapp(doc):
             counter[2] += sometimes.values[0]/len(df5[state_selected])
             counter[3] += frequently.values[0]/len(df5[state_selected])
             counter[4] += always.values[0]/len(df5[state_selected])
-        p1.vbar(x=ranges, top=counter, width=0.9) #check if state changed before displaying
-        p1.title.text = "Mask Usage in %s" %(state_selected)
+        if(select_state.value == new):
+            print(counter)
+            p1.vbar(x=ranges, top=counter, width=0.9)
+            p1.title.text = "Mask Usage in %s" %(state_selected)
         if(len(x) > 0):
+            x[0] = np.round(x[0], 2)
+            print(x[0])
+            p2.y_range.start = min(x[0])
+            p2.y_range.end = max(x[0])
             p2.vbar(x=ranges, top=x[0], width=0.9)
             p2.title.text = "Mask Usage in %s, %s" %(county_selected, state_selected)
-
+        else: 
+            arr = [0,0,0,0,0]
+            p2.vbar(x=ranges, top=arr, width=0.9)
+            p2.title.text = "Mask Usage in __, %s" %(state_selected)
 
     slider = Slider(title='Month:', start=3, end=11, step=1, value=9)
     slider.on_change('value', update_plot)
     select_state.on_change('value', update_layout)
     select_county.on_change('value', update_layout)
-    layout = Column(row(select_state, select_county), row(p1, p2),column(p, slider))
+    layout = Column(row(select_state, Spacer(width = 300, height = 1, sizing_mode='fixed'), select_county), row(p1, p2), Spacer(width=10, height=100, sizing_mode='fixed'), column(p, slider))
     p.add_layout(color_bar, 'right')
     #show(layout)
     doc.add_root(layout)
