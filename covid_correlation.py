@@ -65,7 +65,7 @@ for i in deathsByState:      # color
 for i in testsByState:      # size
     color_list.append((float(testsByState[i][6])/final_population[i])*250)
 
-p = figure(title="COVID-19 Number of Deaths vs Testing: September", plot_width=1200, plot_height=800)
+p = figure(title="COVID-19 Number of Deaths vs Testing: September", plot_width=1000, plot_height=650)
 p.patches(state_xs, state_ys, line_color="#000000", line_width=2, fill_color="#ffffff")
 source = ColumnDataSource(dict(x=x, y=y, size_list=size_list, color_list=color_list, actual_size=actual_size))
 mapper = linear_cmap(field_name='size_list', palette=Spectral11, low=min(size_list), high=max(size_list))
@@ -77,13 +77,13 @@ p.add_tools(hover_tool)
 color_bar = ColorBar(title='Deaths', color_mapper=mapper['transform'], width=10)
 relation = {3: 0, 4: 1, 5: 2, 6: 3, 7: 4, 8: 5, 9: 6, 10: 7, 11: 8}
 months = {3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November'}
-event_legend2 = Legend(items=[LegendItem(label='1500', renderers=[renderer])],
+event_legend2 = Legend(items=[LegendItem(label='10', renderers=[renderer])],
                        location=(21, 118), label_standoff=10, title="Tests per 250")
-event_legend3 = Legend(items=[LegendItem(label='3000', renderers=[renderer])],
+event_legend3 = Legend(items=[LegendItem(label='30', renderers=[renderer])],
                        location=(5, 80), label_standoff=5)
-event_legend4 = Legend(items=[LegendItem(label='8000', renderers=[renderer])],
+event_legend4 = Legend(items=[LegendItem(label='40', renderers=[renderer])],
                        location=(-2, 42), label_standoff=0)
-event_legend5 = Legend(items=[LegendItem(label='150000', renderers=[renderer])],
+event_legend5 = Legend(items=[LegendItem(label='50', renderers=[renderer])],
                        location=(-14, -10), label_standoff=-5)
 # event_legend6 = Legend(items=[LegendItem(label="fff", renderers=[renderer])],
 #                       location=(-20, -15), label_standoff=-10)
