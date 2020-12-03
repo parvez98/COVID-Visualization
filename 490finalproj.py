@@ -98,7 +98,7 @@ def bkapp(doc):
         color_list.append((float(testsByState[i][6])/final_population[i])*250)
 
     p = figure(title="COVID-19 Number of Deaths vs Testing: September",
-            plot_width=1200, plot_height=800)
+            plot_width=1000, plot_height=650)
     p.patches(state_xs, state_ys, line_color="#000000",
             line_width=2, fill_color="#ffffff")
     source = ColumnDataSource(dict(
@@ -116,13 +116,13 @@ def bkapp(doc):
     relation = {3: 0, 4: 1, 5: 2, 6: 3, 7: 4, 8: 5, 9: 6, 10: 7, 11: 8}
     months = {3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July',
             8: 'August', 9: 'September', 10: 'October', 11: 'November'}
-    event_legend2 = Legend(items=[LegendItem(label='1500', renderers=[renderer])],
+    event_legend2 = Legend(items=[LegendItem(label='10', renderers=[renderer])],
                         location=(21, 118), label_standoff=10, title="Tests per 250")
-    event_legend3 = Legend(items=[LegendItem(label='3000', renderers=[renderer])],
+    event_legend3 = Legend(items=[LegendItem(label='30', renderers=[renderer])],
                         location=(5, 80), label_standoff=5)
-    event_legend4 = Legend(items=[LegendItem(label='8000', renderers=[renderer])],
+    event_legend4 = Legend(items=[LegendItem(label='40', renderers=[renderer])],
                         location=(-2, 42), label_standoff=0)
-    event_legend5 = Legend(items=[LegendItem(label='150000', renderers=[renderer])],
+    event_legend5 = Legend(items=[LegendItem(label='50', renderers=[renderer])],
                         location=(-14, -10), label_standoff=-5)
     event_legend_list = [event_legend2,
                         event_legend3, event_legend4, event_legend5]
@@ -182,12 +182,12 @@ def bkapp(doc):
         mapper = test
     
     def update_layout(attr, old, new):
+        counter = [0,0,0,0,0]
         state_selected = select_state.value
         df5 = pd.DataFrame()
         df5[state_selected] = result['name'].loc[result['state'] == state_selected]
         select_county.options = list(df5[state_selected])
         county_selected = select_county.value
-        print(county_selected)
         counts = result.loc[(result['state'] == state_selected) & (result['name'] == county_selected)]
         counts = counts.drop(columns=['countyfp', 'name','state'])
         x = counts.values.tolist()
@@ -204,9 +204,13 @@ def bkapp(doc):
             counter[3] += frequently.values[0]/len(df5[state_selected])
             counter[4] += always.values[0]/len(df5[state_selected])
         if(select_state.value == new):
-            print(counter)
-            p1.vbar(x=ranges, top=counter, width=0.9)
-            p1.title.text = "Mask Usage in %s" %(state_selected)
+            p4 = figure(x_range=ranges, title="Mask Usage in %s" %(state_selected), plot_height=250,
+                        toolbar_location=None, tools="")
+            p4.vbar(x=ranges, top=counter, width=0.9)
+            p4.xgrid.grid_line_color = None
+            p4.y_range.start = 0
+            layout.children[1] = p4
+
             p3 = figure(x_range=ranges, title="Mask Usage in __, %s" %(state_selected), plot_height=250,
                 toolbar_location=None, tools="")
             p3.vbar(x=ranges, top=[0,0,0,0,0], width=0.9)
@@ -215,7 +219,6 @@ def bkapp(doc):
             layout.children[2] = p3
         if(select_county.value == new):
             x[0] = np.round(x[0], 2)
-            print(x[0])
             p3 = figure(x_range=ranges, title="Mask Usage in %s, %s" %(county_selected, state_selected), plot_height=250,
                 toolbar_location=None, tools="")
             p3.vbar(x=ranges, top=x[0], width=0.9)
@@ -223,7 +226,7 @@ def bkapp(doc):
             p3.y_range.start = 0
             layout.children[2] = p3
 
-    slider = Slider(title='Month:', start=3, end=11, step=1, value=9)
+    slider = Slider(title='Month', start=3, end=11, step=1, value=9)
     slider.on_change('value', update_plot)
     select_state.on_change('value', update_layout)
     select_county.on_change('value', update_layout)
