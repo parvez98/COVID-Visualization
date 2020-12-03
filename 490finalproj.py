@@ -230,7 +230,7 @@ def bkapp(doc):
     slider.on_change('value', update_plot)
     select_state.on_change('value', update_layout)
     select_county.on_change('value', update_layout)
-    layout = Column(row(select_state, Spacer(width = 300, height = 1, sizing_mode='fixed'), select_county), p1, p2, Spacer(width=10, height=40, sizing_mode='fixed'), column(p, slider))
+    layout = Column(row(select_state, select_county), p1, p2, Spacer(width=10, height=40, sizing_mode='fixed'), column(p, slider))
     p.add_layout(color_bar, 'right')
     #show(layout)
     doc.add_root(layout)
